@@ -1,0 +1,54 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Subscribe</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #messages {
+            background-color: #e6e6e6;
+        }
+
+        #messages > p {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Subscribe</h1>
+                Topic: <input id="topic" type="text" />
+                <button id="subscribe" onclick="subscribe()" class="btn btn-primary">Subscribe</button>
+                <p id="status"></p>
+                <div id="messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/faye.js"></script>
+    <script>
+        var client = new Faye.Client('http://localhost:8000/api/topics', { timeout: 10 });
+        var topic = document.getElementById('topic');
+        var messages = document.getElementById('messages');
+        var subscription = null;
+
+        function subscribe() {
+            if (subscription) {
+                subscription.cancel();
+                messages.innerHTML = "";
+            }
+
+            subscription = client.subscribe('/' + topic.value, function (data) {
+                var node = document.createElement("p");
+                node.innerHTML = data.username + ": <i>" + data.message + "</i>";
+                messages.appendChild(node);
+            });
+
+            document.getElementById('status').innerHTML = "Now subscribed to <b>" + topic.value + "</b>";
+        }
+    </script>
+</body>
+</html>

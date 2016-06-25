@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Publish</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <style>
+            .form{
+                padding-top: 5px;
+                padding-bottom: 10px;
+            }
+
+            #message{
+                width: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Publish</h1>
+                <div class="form">Topic: <input id="topic" type="text"></div>
+                <div class="form"><span>Message: </span><textarea id="message" rows="2"></textarea></div>
+                <button id="send" class="btn btn-primary" onclick="publish()">Send message</button>
+                <div id="status" style="margin-top: 15px" role="alert"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/faye.js"></script>
+    <script>
+        var client = new Faye.Client('http://localhost:8000/api/topics', { timeout: 10 });
+        function publish() {
+            var token = window.location.search.substr(7);
+            var topic = document.getElementById('topic').value;
+            var message = document.getElementById('message').value;
+
+            var data = { 'token': token, 'message': message };
+            var publication = client.publish('/' + topic, data);
+
+            var status = document.getElementById('status');
+            publication.then(function () {
+                status.innerHTML = "Message sent successfully";
+                status.className = "alert alert-success";
+            }, function (error) {
+                status.innerHTML = "Error sending message";
+                status.className = "alert alert-danger";  
+            });
+        }
+    </script>
+</body>
+
+</html>
